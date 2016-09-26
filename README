@@ -12,8 +12,8 @@ palindromeString
 
 sqr
     - Solves for the smallest x for the equation a squared <= x cubed < b squared
-    NOTE: The dlx tools (dsim.jar and dasm.jar are needed), not supplied
-    assemble: java -jar dasm.jar -a sqr.dls
+    NOTE: The dlx tools (dsim.jar and dasm.jar are needed), not supplied, also dsim has a bug where it occasionally freezes on multicore systems
+    assemble: taskset -c 0 java -jar dsim.jar
     usage: java -jar dsim.jar (then load sqr.dlx from cpu)
 
 restaurant
