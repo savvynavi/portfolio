@@ -1,0 +1,209 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                                        ;
+;      main     The sqr/qbe program                                      ;
+;                                                                        ;
+;      written  Georgia Shepherd                                         ;
+;                                                                        ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    .start main
+
+LIGHTS	.equ	16#FFFFFFF8
+SWITCHES .equ	16#FFFFFFFC
+
+var .word  2
+answer .space  4
+
+main
+        lw      r1,var
+        lw      r2,SWITCHES
+	jal	solve
+	sw      answer,r1
+	sw      LIGHTS,r1
+	halt	                ;stop
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                                        ;
+;       solve   Solve for smallest x in a^2 <= x^3 < b^2                 ;
+;                                                                        ;
+;       Entry   r1= a                                                    ;
+;               r2= b                                                    ;
+;               jal solve                                                ;
+;                                                                        ;
+;       Exit    r1= x                                                    ;
+;               r1= -1 if no solution is possible                        ;
+;                                                                        ;
+;       Uses    r1,r2                                                    ;
+;                                                                        ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+solver31    .space  4
+solver3     .space  4
+solver4     .space  4
+solver5     .space  4
+solver6     .space  4
+solver7     .space  4
+solver8     .space  4
+solver9     .space  4
+solver10    .space  4
+solver11    .space  4
+
+solve:
+        sw      solver31,r31
+        sw      solver3,r3
+        sw      solver4,r4
+        sw      solver5,r5
+        sw      solver6,r6
+        sw      solver7,r7
+        sw      solver8,r8
+        sw      solver9,r9
+        sw      solver10,r10
+        sw      solver11, r11
+        
+        add     r10,r2,r0       ;moved b to r10
+        
+        add     r3,r0,r0        ;x=0 at r3
+        jal     sqr
+        add     r4,r1,r0        ;storing a^2 in r4
+        add     r1,r10,r0       ;moving b into r1
+        jal     sqr
+        addi    r5,r1,0         ;storing b^2 in r5
+        add     r1,r3,r0        ;moving x to r1
+        jal     qbe
+        add     r6,r1,r0        ;storing x^3 in r6
+        sgt     r11,r4,r5       ;a^2 > b^2?
+        bt      r11,solve3   
+solve1:
+        slt     r7,r6,r5        ;x^3 < b^2?
+        bf      r7,solve3
+        sge     r8,r6,r4        ;x^3 >= a^2?
+        bf      r8,solve2
+        slt     r9,r6,r5        ;x^3 < b^2?
+        bf      r9,solve3
+        add     r1,r3,r0        ;x moved to r1
+        j       solve4
+solve2:
+        addi    r3,r3,1         ;incrementing x
+        add     r1,r3,r0        ;storing x in r1
+        jal     qbe             ;x^3
+        add     r6,r1,r0        ;moving x^3 back into r6
+        j       solve1
+solve3:
+        subi    r1,r0,1         ;x can't be found, set to -1
+        j       solve4
+        
+solve4:
+        lw      r31,solver31
+        lw      r3,solver3
+        lw      r4,solver4
+        lw      r5,solver5
+        lw      r6,solver6
+        lw      r7,solver7
+        lw      r8,solver8
+        lw      r9,solver9
+        lw      r10,solver10
+        lw      r11,solver11
+        
+        jr      r31
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                                        ;
+;       sqr     Compute square of an integer                             ;
+;                                                                        ;
+;       Entry   r1= x                                                    ;
+;               jal sqr                                                  ;
+;                                                                        ;
+;       Exit    r1= x*x                                                  ;
+;                                                                        ;
+;       Uses    r1,r2                                                    ;
+;                                                                        ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+sqrr4       .space  4
+sqrr3       .space  4
+sqr: 
+            sw      sqrr4,r4
+            sw      sqrr3,r3
+        
+	    clr	    r2	            ;s=0
+            addi    r3,r0,1         ;d=1
+sqr1:
+            sgt	    r4,r1,r0        ;x > 0?
+            bf	    r4,sqr3         ;no
+            add	    r2,r2,r3        ;s = s + d
+            addi    r3,r3,2         ;d = d + 2
+            subi    r1,r1,1         ;x = x - 1
+            j       sqr1
+sqr3:
+            slt	    r4,r1,r0        ;x < 0?
+            bf      r4,sqr2         ;no
+            add	    r2,r2,r3        ;s = s + d
+            addi    r3,r3,2         ;d = d + 2
+            addi    r1,r1,1         ;x = x + 1
+            j       sqr3
+
+sqr2:
+        add     r1,r2,r0
+        
+        lw      r4,sqrr4
+        lw      r3,sqrr3
+        
+        jr      r31                 ;return fn
+	    
+	  
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                                        ;
+;       qbe     Compute cube of an integer               ;
+;                                                                        ;
+;       Entry   r1= x                                               ;
+;               jal sqr                                                ;
+;                                                                        ;
+;       Exit    r1= x*x*x                                          ;
+;                                                                        ;
+;       Uses    r1,r2                                               ;
+;                                                                        ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+qber3   .word   4
+qber4   .word   4
+qber5   .word   4
+
+qbe:
+        sw      qber5,r5
+        sw      qber4,r4
+        sw      qber3,r3
+    
+        clr     r2                  ;q=0
+        addi    r3,r0,1	            ;d=1
+        addi    r4,r0,6	            ;dd=6
+        sgt     r5,r1,r0            ;x > 0?
+        bf      r5,qbe3
+qbe1:
+        sgt         r5,r1,r0        ;x > 0?
+        bf          r5,qbe2         ;no, exit loop
+        add         r2,r2,r3        ;q = q + d
+        add         r3,r3,r4        ;d = d + dd
+        addi        r4,r4,6         ;dd = dd + 6
+        subi        r1,r1,1         ;x = x - 1
+        j           qbe1
+
+qbe3:
+        slt         r5,r1,r0        ;x < 0?
+        bf          r5,qbe4         ;no, exit loop
+        add         r2,r2,r3        ;q = q + d
+        add         r3,r3,r4        ;d = d + dd
+        addi        r4,r4,6         ;dd = dd + 6
+        addi        r1,r1,1         ;x = x + 1
+        j           qbe3
+qbe4:
+        sub         r2,r0,r2
+qbe2:
+        add         r1,r2,r0
+    
+        lw          r3,qber3
+        lw          r4,qber4
+        lw          r5,qber5
+    
+        jr          r31
+

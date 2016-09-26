@@ -1,0 +1,23 @@
+Portfolio for interview, 4 pieces of code
+
+palindrome
+	- Saves integers in a vector and then checks if it's a palindrome
+    compile: g++ palindrome.cpp -o palindrome
+    usage: ./palindrome
+
+palindromeString
+	- Takes string and checks if it's a palindrome
+    compile: g++ palindromeString.cpp -o palindromeString
+    usage: ./palindromeString
+
+sqr
+    - Solves for the smallest x for the equation a squared <= x cubed < b squared
+    NOTE: The dlx tools (dsim.jar and dasm.jar are needed), not supplied
+    assemble: java -jar dasm.jar -a sqr.dls
+    usage: java -jar dsim.jar (then load sqr.dlx from cpu)
+
+restaurant
+	- OOP project, takes in restaurant name, number of guests and then lets you order from a selection of food and drink objects, before printing
+    out the price
+    compile: make
+    usage: ./restaurant
