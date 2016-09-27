@@ -1,4 +1,4 @@
-Portfolio for interview, 4 pieces of code
+Portfolio for interview, 6 pieces of code
 
 palindrome
 	- Saves integers in a vector and then checks if it's a palindrome
@@ -21,3 +21,14 @@ restaurant
     out the price
     compile: make
     usage: ./restaurant
+    
+bookshelf
+	- Lets you store up to 10 books (as strings) in a vector
+	compile: g++ shelf.cpp shelf.h main.cpp -o shelf
+	usage: ./shelf
+	
+oop vehicle
+	- creates a bike and car objects, both inherited from a vehicle object, and shows the states of each
+	compile: g++ main.cpp vehicle.cpp vehicle.h car.cpp car.h bicycle.h bicycle.cpp -o run
+	usage: ./run
+
